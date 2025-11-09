@@ -17,7 +17,7 @@ Los objetivos principales son:
 
 ## 📁 Estructura del repositorio
 
-Ruta: https://github.com/Sebastien732/Proyecto-final--EDA-dashboard-Zomato.git
+Ruta: https://github.com/Sebastien732/Proyecto_final_EDA_dashboard.git
 
 - `datos/`: Contiene los conjuntos de datos originales (`xlsx`) y los datos transformados.
 - `notebooks/`: Notebooks de Jupyter con el desarrollo del análisis y gráficos ilustrativos para el README.
@@ -28,6 +28,7 @@ Ruta: https://github.com/Sebastien732/Proyecto-final--EDA-dashboard-Zomato.git
 📁 Proyecto_EDA_Python
 ├─ README.md # Documentación del proyecto
 ├─ 📁 datos/ # Datasets originales y procesados
+│   ├─ final.csv
 │   ├─ food.xlsx
 │   ├─ menu.xlsx
 │   ├─ orders.xlsx
@@ -142,7 +143,9 @@ Ruta: https://github.com/Sebastien732/Proyecto-final--EDA-dashboard-Zomato.git
   - En la columna ‘currency’ solo hay un valor (INR), lo que se tendrá en cuenta durante la limpieza.
   - En la columna sales_qty se observan valores atípicos. La media y la moda indican una venta por usuario, pero hay pedidos con cantidades elevadas que podrían corresponder a eventos (bodas, celebraciones, banquetes, etc.).
   - Se supone que el importe de ventas es proporcional a la cantidad vendida. Para comprobarlo, se genera un gráfico de correlación entre ambos parámetros y, en vez de una correlación proporcional, se observan dos tendencias: una indica un vínculo claro entre ingresos y cantidad vendida, la otra muestra un aumento de ingresos con menor cantidad vendida, posiblemente por el valor del menú según el restaurante.
+  - Se detecta importe de ventas a 0, eliminaremos estas filas en la fase de limpieza.
   - Se puede aprovechar la fecha de pedido creando columnas adicionales para agrupar por día de la semana, mes y año, y así estudiar tendencias y evoluciones.
+
 
 - **`df_restaurant`**: Tiene 148,540 entradas y 9 columnas.
   - Hay valores nulos en varias columnas de distinta importancia: ‘name’, ‘rating’, ‘rating_count’, ‘cuisine’ y ‘address’. Al revisar una muestra de las filas sin nombre de restaurante, se observa que también faltan otros datos clave, por lo que estas filas se eliminarán, considerando que representan menos del 0.06% por columna.
@@ -176,7 +179,7 @@ Ruta: https://github.com/Sebastien732/Proyecto-final--EDA-dashboard-Zomato.git
   - La cantidad total de usuarios es menor que el número de usuarios en ‘df_orders’. Se supone que no todos los clientes son activos o tienen un pedido registrado.
   - Hay menos valores únicos en la columna ‘name’ que en ‘user_id’, lo que puede explicarse por la presencia de homónimos. En la limpieza se comprobará que los perfiles sean diferentes, ya que también podría tratarse de usuarios duplicados con más de un identificador.
   - El campo “name” existe tanto en la tabla de restaurante como en la de usuario; se renombrarán de forma más específica en la limpieza.
-
+  - El rango de edad en el campo “Age” está comprendido entre 18 y 33 años, y no se observan anomalías en los datos.
 ---
 
 ### **Conclusión de la revisión inicial**
@@ -189,4 +192,38 @@ El estudio se basará únicamente en los dataframes orders, restaurant y users.
 
 ---
 
-¿Te gustaría que te entregue este texto en un archivo Markdown descargable?
+
+
+### 2. **Limpieza de datos**
+
+**🧹 Limpieza por dataset**
+
+#### df_restaurant
+- Eliminación de las filas sin nombre de restaurante.
+- Eliminación de las columnas ‘Country’, ‘link’ y ‘address’.
+- Cambio del nombre del identificador único de restaurante de ‘id’ a ‘r_id’.
+- Reemplazo del valor ‘—’ de la columna ‘rating’ por Null.
+- Cambio del tipo de dato de la columna ‘rating’ de object a float.
+- Cambio de nombre de la columna ‘name’ a ‘r_name’ en `df_restaurant`.
+
+#### df_orders
+- Eliminación de las filas con valores nulos en ‘r_id’.
+- Cambio del tipo de dato de ‘r_id’ de float a int.
+- Eliminación de la columna ‘currency’.
+- Creación de las columnas ‘order_day’, ‘order_month’ y ‘order_year’ a partir de la fecha completa.
+- Eliminación de las filas con valor 0 en ‘sales_amount’ en `df_orders`.
+- Creación de la columna ‘average_sales_price’ con el valor de ‘sales_amount’ dividido por la cantidad vendida en ‘sales_qty’.
+
+#### df_users
+- Cambio de nombre de la columna ‘name’ a ‘u_name’ en `df_users`.
+
+---
+
+### 3. **Unificación de datasets**
+- Combinación de los datasets usando claves comunes (`user_id` y `r_id`).
+- Limpieza adicional de las filas obtenidas con campos vacíos (`r_name` y `cuisine`).
+- Reorganización del orden de las columnas para mejorar la legibilidad.
+- Verificación de consistencia y duplicados tras la fusión.
+- Creación del dataset maestro que relacione pedidos, clientes y restaurantes en un fichero llamado ‘df_final.csv’.
+
+---
