@@ -48,6 +48,8 @@ Ruta: https://github.com/Sebastien732/Proyecto_final_EDA_dashboard.git
 - Python
 - Pandas
 - Numpy
+- Matplotlib
+- Seaborn
 - Jupyter Notebook
 - Visual Studio Code
 - Power BI
@@ -93,6 +95,7 @@ Ruta: https://github.com/Sebastien732/Proyecto_final_EDA_dashboard.git
 - `id`: Identificador del restaurante.
 - `name`: Nombre del restaurante.
 - `Country`: País donde se encuentra el restaurante.
+- `city`: Ciudad del restaurnte. 
 - `rating`: Calificación general del restaurante.
 - `rating_count`: Rango de cantidad de calificaciones recibidas por el restaurante.
 - `cuisine`: Tipo de comida.
@@ -166,6 +169,8 @@ Ruta: https://github.com/Sebastien732/Proyecto_final_EDA_dashboard.git
   - Como en el dataset anterior, la columna Country (India) tiene un único valor, lo que se tendrá en cuenta en la limpieza.
   - El formato de la dirección del restaurante es inconsistente (a veces incluye país, a veces no; el código postal no siempre está presente o tiene formato erróneo). Si fuera posible, se podría haber realizado un estudio por estado donde se encuentran los restaurantes.
   - La página web del restaurante y su dirección completa no aportan valor al estudio, por lo que se eliminarán las columnas ‘link’ y ‘address’ durante la limpieza.
+  - Se identifico duplicados de direccion, la direccion completa consta con el nombre del restaurante por lo cual procederemos a la limpieza de los duplicados mas adelante
+  - La columna cuisine tiene 2132 valores unicos y son combinaciones de varios tipos de cocina por lo cual tendremos que racionalizar y simplificar la lista para un estudio coherente de este parametro. Se identifica un maximo de 2 tipos de cocina en la misma columna y un total de 126 tipos unicos. 
 
 - **`df_users`**: Tiene 100,000 entradas y 6 columnas.
   - No hay valores nulos; los tipos de datos son coherentes con la información mostrada en las muestras.
@@ -200,11 +205,33 @@ El estudio se basará únicamente en los dataframes orders, restaurant y users.
 
 #### df_restaurant
 - Eliminación de las filas sin nombre de restaurante.
-- Eliminación de las columnas ‘Country’, ‘link’ y ‘address’.
+- Eliminación de las columnas ‘Country’, y ‘link’.
 - Cambio del nombre del identificador único de restaurante de ‘id’ a ‘r_id’.
 - Reemplazo del valor ‘—’ de la columna ‘rating’ por Null.
 - Cambio del tipo de dato de la columna ‘rating’ de object a float.
 - Cambio de nombre de la columna ‘name’ a ‘r_name’ en `df_restaurant`.
+- Eliminacion de los filas con direccion duplicada (incluyendo nombre del restaurante) guardando el primer r_id
+- Eliminación de las columnas ‘Country’, ‘link’ y ‘address’.
+- Desde la columna cocina creamos 2 columns 'cuisine_1' and 'cuisine_2
+- Eliminación la columna cocina
+- Eliminación de las filas con valores nulos en ‘cuisine_1’ 
+- Creamos una nueva columna 'cuisine_category' para categorizar los valores de las 2 columnas anteriores de la forma siguiente:  
+
+_**Italian:**_ italian, pizza, pasta, mediterranean, pastas, pizzas  
+_**Asian:**_ chinese, dim sum, szechuan, asian, tibetan, thai, oriental, burmese, korean, malaysian, singaporean, vietnamese, noodles, nepalese, pan-asian  
+_**Indian:**_ indian, curry, tandoori, punjabi, bengali, gujarati, rajasthani, maharashtrian, kerala, chettinad, mughlai, hyderabadi, biryani, tandoor, thali, chaat, north indian, south indian, thalis, North Indian, naga, bihari, north eastern, andhra, parsi, goan, haleem, assamese, mangalorean, malwani  
+_**Mexican:**_ mexican, tacos, burritos  
+_**Fast Food:**_ fast food, burgers, fries, snacks, snack, street food, combo
+_**Japanese:**_ japanese, sushi, ramen  
+_**Fish and Seafood:**_ seafood, fish, coastal  
+_**Vegetarian:**_ vegetarian, vegan  
+_**Desserts:**_ desserts, ice cream, bakery, sweets, paan, bakery products, waffles, waffle, ice cream cakes  
+_**Beverage:**_ cafe, coffee, tea, juice, beverages, juices  
+_**American:**_ american, steakhouse, bbq, grill, barbecue, italian-american  
+_**European:**_ french, bistro, crepes, european, continental, continental food  
+_**Middle Eastern:**_ middle eastern, lebanese, persian, arabian, shawarma, kebab, afghani, turkish, kebabs  
+_**Healthy:**_ healthy, salads, organic, gluten free, salad, healthy food  
+
 
 #### df_orders
 - Eliminación de las filas con valores nulos en ‘r_id’.
@@ -224,6 +251,29 @@ El estudio se basará únicamente en los dataframes orders, restaurant y users.
 - Limpieza adicional de las filas obtenidas con campos vacíos (`r_name` y `cuisine`).
 - Reorganización del orden de las columnas para mejorar la legibilidad.
 - Verificación de consistencia y duplicados tras la fusión.
-- Creación del dataset maestro que relacione pedidos, clientes y restaurantes en un fichero llamado ‘df_final.csv’.
+- Creación del dataset maestro que relacione pedidos, clientes y restaurantes en un fichero llamado ‘df_final.csv’.  
+El dataset final consta con 21 columnas, 146906 entradas y tiene la estuctura siguiente:  
+**order_date:** Fecha del pedido.  
+**day:** Dia del Pedido.  
+**month:** Mes del pedido.  
+**year:** Año del pedido.   
+**sales_qty:** Cantidad vendida.  
+**sales_amount:** Importe del pedido.  
+**average_sales_price:** Precio medio del pedido.  
+**user_id:** Identificador del cliente.  
+**u_name:** Nombre del cliente.  
+**age:** Edad del cliente.  
+**gender:** Género del cliente.  
+**marital status:** Estado civil del cliente.  
+**occupation:** Situación laboral del cliente.  
+**r_id:** Identificador del restaurante.  
+**r_name:** Nombre del restaurante.  
+**city:** Ciudad del restaurante.  
+**rating:** Calificación general del restaurante.  
+**rating_count:** Rango de cantidad de calificaciones recibidas por el restaurante.  
+**cuisine_1:** Tipo de comida.  
+**cuisine_2:**  Tipo de comida.  
+**cuisine_category:** categoría de cocina.  
 
----
+
+
