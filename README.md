@@ -27,20 +27,21 @@ Ruta: https://github.com/Sebastien732/Proyecto_final_EDA_dashboard.git
 ```
 📁 Proyecto_EDA_Python
 ├─ README.md # Documentación del proyecto
-├─ 📁 datos/ # Datasets originales y procesados
+├──📁 Dashboards/ # Archivos de Power BI
+│   └─ nombre_dashboard.bi?
+├─ 📁 Datos/ # Datasets originales y procesados
 │   ├─ final.csv
 │   ├─ food.xlsx
 │   ├─ menu.xlsx
 │   ├─ orders.xlsx
 │   ├─ restaurant.xlsx
 │   └─ users.xlsx
-├─ 📁 notebooks/ # Análisis exploratorio y limpieza
+├─ 📁 Notebooks/ # Análisis exploratorio y limpieza
 │   └─ exploracion.ipynb
-└─ 📁 scripts/ # Scripts de transformación
+├─ 📁 Outputs/ # Visualizaciones y tablas finales
+└─ 📁 Scripts/ # Scripts de transformación
     └─ limpieza_transformacion.py
-# Añadir:
-├── dashboards/ # Archivos de Power BI
-├── outputs/ # Visualizaciones y tablas finales
+
 ```
 
 ## 🛠️ Herramientas utilizadas
@@ -148,6 +149,7 @@ Ruta: https://github.com/Sebastien732/Proyecto_final_EDA_dashboard.git
   - Se supone que el importe de ventas es proporcional a la cantidad vendida. Para comprobarlo, se genera un gráfico de correlación entre ambos parámetros y, en vez de una correlación proporcional, se observan dos tendencias: una indica un vínculo claro entre ingresos y cantidad vendida, la otra muestra un aumento de ingresos con menor cantidad vendida, posiblemente por el valor del menú según el restaurante.
   - Se detecta importe de ventas a 0, eliminaremos estas filas en la fase de limpieza.
   - Se puede aprovechar la fecha de pedido creando columnas adicionales para agrupar por día de la semana, mes y año, y así estudiar tendencias y evoluciones.
+  - El intervalo de datos se extiende del 04/10/2017 al 26/06/2020. 
 
 
 - **`df_restaurant`**: Tiene 148,540 entradas y 9 columnas.
@@ -221,7 +223,7 @@ _**Italian:**_ italian, pizza, pasta, mediterranean, pastas, pizzas
 _**Asian:**_ chinese, dim sum, szechuan, asian, tibetan, thai, oriental, burmese, korean, malaysian, singaporean, vietnamese, noodles, nepalese, pan-asian  
 _**Indian:**_ indian, curry, tandoori, punjabi, bengali, gujarati, rajasthani, maharashtrian, kerala, chettinad, mughlai, hyderabadi, biryani, tandoor, thali, chaat, north indian, south indian, thalis, North Indian, naga, bihari, north eastern, andhra, parsi, goan, haleem, assamese, mangalorean, malwani  
 _**Mexican:**_ mexican, tacos, burritos  
-_**Fast Food:**_ fast food, burgers, fries, snacks, snack, street food, combo
+_**Fast Food:**_ fast food, burgers, fries, snacks, snack, street food, combo  
 _**Japanese:**_ japanese, sushi, ramen  
 _**Fish and Seafood:**_ seafood, fish, coastal  
 _**Vegetarian:**_ vegetarian, vegan  
@@ -232,14 +234,16 @@ _**European:**_ french, bistro, crepes, european, continental, continental food
 _**Middle Eastern:**_ middle eastern, lebanese, persian, arabian, shawarma, kebab, afghani, turkish, kebabs  
 _**Healthy:**_ healthy, salads, organic, gluten free, salad, healthy food  
 
+- Tras estudiar la cantidad de restaurantes y sus nombres observamos valors compuestos con nombre del restaurante o barrio de la ciudad. Se guarda unicamente la ultima parte de los nombres con varios valores (separados por espacio o coma) para asegurarse guardar solo la ciudad. Con este metodo, pasamos de 821 valores unicos a 552
 
 #### df_orders
 - Eliminación de las filas con valores nulos en ‘r_id’.
 - Cambio del tipo de dato de ‘r_id’ de float a int.
 - Eliminación de la columna ‘currency’.
-- Creación de las columnas ‘order_day’, ‘order_month’ y ‘order_year’ a partir de la fecha completa.
+- Creación de las columnas ‘order_day’, ‘order_month’, ‘order_year’ y day type a partir de la fecha completa (los fines de semana incluyen solo sabado y domingo). 
 - Eliminación de las filas con valor 0 en ‘sales_amount’ en `df_orders`.
 - Creación de la columna ‘average_sales_price’ con el valor de ‘sales_amount’ dividido por la cantidad vendida en ‘sales_qty’.
+- Creacion de un identificador unico de pedido 'order_id'
 
 #### df_users
 - Cambio de nombre de la columna ‘name’ a ‘u_name’ en `df_users`.
@@ -252,9 +256,10 @@ _**Healthy:**_ healthy, salads, organic, gluten free, salad, healthy food
 - Reorganización del orden de las columnas para mejorar la legibilidad.
 - Verificación de consistencia y duplicados tras la fusión.
 - Creación del dataset maestro que relacione pedidos, clientes y restaurantes en un fichero llamado ‘df_final.csv’.  
-El dataset final consta con 21 columnas, 146906 entradas y tiene la estuctura siguiente:  
+El dataset final consta con 22 columnas, 146906 entradas y tiene la estuctura siguiente:  
 **order_date:** Fecha del pedido.  
-**day:** Dia del Pedido.  
+**order_day:** Dia de la semana pedido.  
+**day_type:** Tipo de dia de la semana.  
 **month:** Mes del pedido.  
 **year:** Año del pedido.   
 **sales_qty:** Cantidad vendida.  
@@ -272,8 +277,67 @@ El dataset final consta con 21 columnas, 146906 entradas y tiene la estuctura si
 **rating:** Calificación general del restaurante.  
 **rating_count:** Rango de cantidad de calificaciones recibidas por el restaurante.  
 **cuisine_1:** Tipo de comida.  
-**cuisine_2:**  Tipo de comida.  
+**cuisine_2:** Tipo de comida.  
 **cuisine_category:** categoría de cocina.  
+
+
+
+
+### 4. **Análisis descriptivo global**
+Primero analizamos la evolución de los pedidos en el tiempo:
+
+La media de pedidos por día es 183, mientras que la media por año completo (2018 y 2019) es de 55.704.
+Observamos una disminución progresiva de pedidos a lo largo de los años. Si ajustamos proporcionalmente los meses incompletos de 2017 y 2020, los valores estimados serían:
+
+2017: 87.000  
+2018: 60.000  
+2019: 51.000  
+2020: 42.000
+
+
+
+![Proyecto_final_EDA_dashboard\Ouputs](Outputs/media_pedidos_mes_año.png)
+
+Además, la media de pedidos entre semana es 37 veces superior a la de los fines de semana (206 vs 5,5), siendo el viernes el día con mayor número de pedidos.
+![Proyecto_final_EDA_dashboard\Ouputs](Outputs/media_pedidos_dia_semana.png)
+En cuanto a la cantidad de menús vendidos por pedido, se aprecia un aumento anual, pasando de 16,06 en 2017 a 16,62 en 2020.
+La moda se mantiene en 1 menú por pedido durante todo el período analizado.
+El importe medio por pedido es de ₹6.555, y el precio medio por menú se sitúa en ₹451,8.
+![Proyecto_final_EDA_dashboard\Ouputs](Outputs/evolucion_cantidad_vendida_precio_medio.png)
+
+#### Restaurantes más relevantes
+
+Top 5 categorías de comida por número de restaurantes:
+Comida india, asiática, dulces, comida rápida y comida italiana.  
+Ciudades con mayor número de restaurantes:
+Bangalore, Delhi, Pune, Hyderabad, Chennai, Kolkata y Mumbai.  
+Valoración media general: 3,9.  
+La comida japonesa destaca con la mejor valoración (4,24/5).  
+Ciudades con mejor promedio de valoración:
+Chopda y Kumta (4,82/5).  
+Distribución de valoraciones:
+La mayoría de restaurantes no tienen valoraciones.
+Solo 15 restaurantes superan las 10.000 valoraciones, mientras que la mayoría se sitúa entre mas de 20 y menos de 1.000 valoraciones.
+
+
+#### Perfil de los usuarios
+
+Edad: entre 18 y 33 años, con una moda de 23 años.  
+Ocupación: más del 53% son estudiantes.  
+Estado civil: 69% solteros.  
+Género: predominan los hombres (57% vs 43% mujeres).
+
+
+En el dashboard se analizarán datos cruzados como ventas por tipo de restaurante, ciudad y perfil de usuario.
+
+
+
+
+
+
+
+![Proyecto_final_EDA_dashboard\Ouputs](Outputs/media_pedidos_mes_año.png)
+
 
 
 
